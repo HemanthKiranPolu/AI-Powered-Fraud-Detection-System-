@@ -23,6 +23,8 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
+          audience: sts.amazonaws.com
+          output-credentials: true
       - name: Login to ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
