@@ -27,8 +27,9 @@
 name: Deploy to Amazon ECS
 
 on:
-  push:
-    branches: [ "main" ]
+  # Disable automatic runs on push to avoid duplicate builds and placeholder values.
+  # Trigger this workflow manually from the Actions tab if you need to use it.
+  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1                       # set this to your preferred AWS region, e.g. us-west-1
