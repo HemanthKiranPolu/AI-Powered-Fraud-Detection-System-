@@ -7,6 +7,8 @@ on:
 
 jobs:
   build-and-push:
+    # Target GitHub Environment that holds environment-scoped secrets/variables
+    environment: prod
     runs-on: ubuntu-latest
     permissions:
       id-token: write
