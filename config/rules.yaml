@@ -1,0 +1,25 @@
+weights:
+  face_similarity: 0.35
+  textract_conf_avg: 0.15
+  mrz_valid: 0.10
+  expiry_valid: 0.05
+  template_geom_score: 0.10
+  blur_score: 0.10
+  velocity_count_24h: 0.10
+  device_hash_dup: 0.05
+thresholds:
+  approve: 0.25
+  review: 0.25-0.6
+  reject: 0.6
+explanations:
+  - when: "face_similarity < 85"
+    reason: "Low face match between selfie and document portrait"
+  - when: "mrz_valid == 0"
+    reason: "MRZ checksum failed"
+  - when: "expiry_valid == 0"
+    reason: "Document appears expired"
+  - when: "glare_score > 0.15"
+    reason: "Document image has glare"
+  - when: "blur_score > 0.5"
+    reason: "Document image is blurry"
+

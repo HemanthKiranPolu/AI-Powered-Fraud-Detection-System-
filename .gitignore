@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate*
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Byte-compiled / cache
+*.sqlite
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Docker
+*.log
+dist/
+build/
+
