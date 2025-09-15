@@ -6,44 +6,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
+  test-aws-auth:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
-          audience: sts.amazonaws.com
-          output-credentials: true
-      - name: Login to ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-      - name: Build images
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Run AWS CLI commands
         run: |
-          docker build -f docker/api.Dockerfile -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.API_ECR_REPO }}:${{ github.sha }} .
-          docker build -f docker/worker.Dockerfile -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.WORKER_ECR_REPO }}:${{ github.sha }} .
-      - name: Push images
-        run: |
-          docker push ${{ steps.login-ecr.outputs.registry }}/${{ vars.API_ECR_REPO }}:${{ github.sha }}
-          docker push ${{ steps.login-ecr.outputs.registry }}/${{ vars.WORKER_ECR_REPO }}:${{ github.sha }}
-      - name: Terraform Init
-        working-directory: infra/terraform
-        run: terraform init -input=false
-      - name: Terraform Apply
-        working-directory: infra/terraform
-        env:
-          TF_VAR_api_image: ${{ steps.login-ecr.outputs.registry }}/${{ vars.API_ECR_REPO }}:${{ github.sha }}
-          TF_VAR_worker_image: ${{ steps.login-ecr.outputs.registry }}/${{ vars.WORKER_ECR_REPO }}:${{ github.sha }}
-          TF_VAR_aws_region: us-east-1
-          TF_VAR_vpc_id: ${{ vars.TF_VAR_vpc_id }}
-          TF_VAR_private_subnet_ids: ${{ vars.TF_VAR_private_subnet_ids }}
-          TF_VAR_public_subnet_ids: ${{ vars.TF_VAR_public_subnet_ids }}
-        run: terraform apply -auto-approve -input=false
+          aws sts get-caller-identity
+          echo "AWS auth working!"
