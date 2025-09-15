@@ -41,5 +41,7 @@ jobs:
           TF_VAR_api_image: ${{ steps.login-ecr.outputs.registry }}/${{ vars.API_ECR_REPO }}:${{ github.sha }}
           TF_VAR_worker_image: ${{ steps.login-ecr.outputs.registry }}/${{ vars.WORKER_ECR_REPO }}:${{ github.sha }}
           TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
+          TF_VAR_vpc_id: ${{ vars.TF_VAR_vpc_id }}
+          TF_VAR_private_subnet_ids: ${{ vars.TF_VAR_private_subnet_ids }}
+          TF_VAR_public_subnet_ids: ${{ vars.TF_VAR_public_subnet_ids }}
         run: terraform apply -auto-approve -input=false
-

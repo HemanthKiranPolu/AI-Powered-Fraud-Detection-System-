@@ -36,9 +36,9 @@ Prereqs:
 Steps:
 1) Build and push images (GitHub Actions provided) or locally.
 2) `cd infra/terraform && terraform init`
-3) `terraform apply -var="aws_region=us-east-1" -var="vpc_id=..." -var='private_subnet_ids=["subnet-...","subnet-..."]'`
+3) `terraform apply -var="aws_region=us-east-1" -var="vpc_id=..." -var='private_subnet_ids=["subnet-...","subnet-..."]' -var='public_subnet_ids=["subnet-...","subnet-..."]'`
 
-Outputs include: S3 bucket, KMS key ARN, SQS URL, DynamoDB table names, ECS cluster and task families, and ECR URLs. Wire the produced ECR image URIs into the ECS task definitions via CI or `-var api_image=... -var worker_image=...`.
+Outputs include: S3 bucket, KMS key ARN, SQS URL, DynamoDB table names, ECS cluster and task families, ECS services, and ALB DNS name, plus ECR URLs. Wire the produced ECR image URIs into the ECS task definitions via CI or `-var api_image=... -var worker_image=...`.
 
 ## Local Run (for development)
 
@@ -85,7 +85,7 @@ Outputs include: S3 bucket, KMS key ARN, SQS URL, DynamoDB table names, ECS clus
 ## CI/CD
 
 - `.github/workflows/ci-cd.yml` builds images, pushes to ECR, then `terraform apply` with image tags.
-- Configure `secrets.AWS_ROLE_ARN`, `secrets.AWS_REGION`, `vars.API_ECR_REPO`, `vars.WORKER_ECR_REPO`.
+- Configure `secrets.AWS_ROLE_ARN`, `secrets.AWS_REGION`, `vars.API_ECR_REPO`, `vars.WORKER_ECR_REPO`, `vars.TF_VAR_vpc_id`, `vars.TF_VAR_private_subnet_ids`, `vars.TF_VAR_public_subnet_ids`.
 
 ## Notes & Stretch
 
@@ -97,4 +97,3 @@ Outputs include: S3 bucket, KMS key ARN, SQS URL, DynamoDB table names, ECS clus
 - Metrics: CloudWatch `FraudDetection/CasesProcessed`.
 - Alarms: SQS DLQ non-empty, Textract/Rekognition error rates, API 5xx.
 - Dashboards: stage latencies, score distributions, auto decision rates.
-

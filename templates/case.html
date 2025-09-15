@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Case {{ case_id }}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Case {{ case_id }}</h1>
+    <a href="/">← Back</a>
+  </header>
+  <main>
+    <section class="card">
+      <div id="status">Loading...</div>
+      <div id="details" class="mt"></div>
+    </section>
+  </main>
+
+  <script>
+    const caseId = "{{ case_id }}";
+    const statusEl = document.getElementById('status');
+    const detailsEl = document.getElementById('details');
+
+    async function fetchStatus() {
+      try {
+        const res = await fetch(`/ui/case/${caseId}/json`);
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        statusEl.textContent = `Status: ${data.status}`;
+        if (data.fraud_score !== null && data.fraud_score !== undefined) {
+          detailsEl.innerHTML = `<p>Fraud score: <b>${data.fraud_score.toFixed(3)}</b></p>` +
+            (data.reasons && data.reasons.length ? `<p>Reasons:</p><ul>` + data.reasons.map(r => `<li>${r}</li>`).join('') + `</ul>` : '');
+        }
+      } catch (e) {
+        statusEl.textContent = 'Error: ' + e.message;
+      }
+    }
+    fetchStatus();
+    setInterval(fetchStatus, 3000);
+  </script>
+</body>
+</html>
+

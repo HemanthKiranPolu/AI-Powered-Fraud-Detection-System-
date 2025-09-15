@@ -39,6 +39,26 @@ def save_images_to_s3(case_id: str, req) -> Dict[str, str]:
     return {"front": front_key, "back": back_key, "selfie": selfie_key}
 
 
+def save_image_bytes_to_s3(case_id: str, name: str, data: bytes, mime: str | None = None) -> str:
+    """Save raw image bytes to S3 with SSE-KMS and metadata. Returns the object key."""
+    settings = get_settings()
+    s3 = settings.boto_client("s3")
+    kms_key = settings.kms_key_arn or None
+    key = f"cases/{case_id}/{name}.jpg"
+    extra_args = {
+        "Bucket": settings.s3_bucket,
+        "Key": key,
+        "Body": data,
+        "ContentType": mime or "image/jpeg",
+        "Metadata": {"sha256": sha256_hex(data)},
+    }
+    if kms_key:
+        extra_args["ServerSideEncryption"] = "aws:kms"
+        extra_args["SSEKMSKeyId"] = kms_key
+    s3.put_object(**extra_args)
+    return key
+
+
 def enqueue_case(case_id: str, keys: Dict[str, Optional[str]], metadata: Optional[dict] = None):
     settings = get_settings()
     sqs = settings.boto_client("sqs")
@@ -50,4 +70,3 @@ def enqueue_case(case_id: str, keys: Dict[str, Optional[str]], metadata: Optiona
         "enqueued_at": datetime.now(timezone.utc).isoformat(),
     }
     sqs.send_message(QueueUrl=settings.sqs_queue_url, MessageBody=json.dumps(body))
-

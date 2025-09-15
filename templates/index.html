@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fraud Detection Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>AI-Powered Fraud Detection</h1>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Upload Documents</h2>
+      <form id="ingest-form">
+        <label>Front Image (required)
+          <input type="file" name="doc_front" accept="image/*" required />
+        </label>
+        <label>Back Image (optional)
+          <input type="file" name="doc_back" accept="image/*" />
+        </label>
+        <label>Selfie (optional)
+          <input type="file" name="selfie" accept="image/*" />
+        </label>
+        <button type="submit">Submit</button>
+      </form>
+      <div id="result" class="mt"></div>
+    </section>
+
+    <section class="card">
+      <h2>Lookup Case</h2>
+      <form id="lookup-form">
+        <input type="text" id="case-id" placeholder="Enter case ID" />
+        <button type="submit">Open</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('ingest-form');
+    const result = document.getElementById('result');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      result.textContent = 'Submitting...';
+      try {
+        const res = await fetch('/ui/ingest', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+        result.innerHTML = `Case created: <code>${data.case_id}</code> — <a href="${data.redirect}">Open</a>`;
+      } catch (err) {
+        result.textContent = 'Error: ' + err.message;
+      }
+    });
+
+    const lookup = document.getElementById('lookup-form');
+    lookup.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('case-id').value.trim();
+      if (id) window.location.href = `/ui/case/${id}`;
+    });
+  </script>
+</body>
+</html>
+

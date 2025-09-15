@@ -4,6 +4,7 @@ variable "aws_region" { type = string default = "us-east-1" }
 # Networking (use existing VPC/Subnets)
 variable "vpc_id" { type = string }
 variable "private_subnet_ids" { type = list(string) }
+variable "public_subnet_ids" { type = list(string) }
 
 # S3 lifecycle
 variable "image_ttl_days" { type = number default = 30 }
@@ -23,3 +24,6 @@ variable "worker_image" { type = string default = "" }
 # Secrets
 variable "api_key_secret_name" { type = string default = "fraud_api_key" }
 
+# ECS services
+variable "api_desired_count" { type = number default = 1 }
+variable "worker_desired_count" { type = number default = 1 }

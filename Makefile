@@ -9,6 +9,15 @@ install:
 run-api:
 	uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
 
+.PHONY: run-worker
+run-worker:
+	python -m worker.main
+
+.PHONY: run-local
+run-local:
+	(uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload &) && \
+	python -m worker.main
+
 .PHONY: docker-build
 docker-build:
 	docker build -f docker/api.Dockerfile -t $(PROJECT)-api:local .
@@ -21,4 +30,3 @@ tf-init:
 .PHONY: tf-apply
 tf-apply:
 	cd infra/terraform && terraform apply -auto-approve -var="aws_region=$(AWS_REGION)"
-
